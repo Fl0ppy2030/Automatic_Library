@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<title>Biblioteca</title>
+
+<style>
+body {
+    background: #f5f7fb;
+}
+
+.navbar {
+    backdrop-filter: blur(10px);
+}
+
+.card {
+    cursor: pointer;
+    transition: 0.2s;
+    border-radius: 12px;
+}
+
+.card:hover {
+    transform: scale(1.03);
+}
+
+img {
+    height: 250px;
+    object-fit: cover;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.capa-grande {
+    max-height: 400px;
+    width: auto;
+    max-width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-dark bg-dark shadow mb-4">
+    <div class="container d-flex justify-content-between">
+
+        <!-- NOME DO APP -->
+        <span class="navbar-brand fw-bold">📚 Biblioteca</span>
+
+        <!-- ✅ NOME DO USUÁRIO + LOGOUT -->
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-white small">
+                👤 {{ current_user.username }}
+            </span>
+
+            <a href="/logout" class="btn btn-danger btn-sm">
+                Sair
+            </a>
+        </div>
+
+    </div>
+</nav>
+
+<div class="container">
+
+<h4 class="mb-4">Explore os livros</h4>
+
+<div class="row">
+{% for livro in livros %}
+<div class="col-md-3">
+
+<div class="card mb-3"
+onclick="abrirLivro(
+'{{ livro.titulo|escape }}',
+'{{ livro.autor|escape }}',
+'{{ livro.capa_url|escape }}',
+`{{ livro.descricao|replace('`','')|safe }}`,
+'{{ livro.quantidade }}'
+)">
+
+<img src="{{ livro.capa_url or 'https://picsum.photos/200' }}">
+
+<div class="card-body">
+<b>{{ livro.titulo }}</b>
+</div>
+
+</div>
+
+</div>
+{% endfor %}
+</div>
+
+</div>
+
+<!-- MODAL -->
+<!-- MODAL -->
+<div class="modal fade" id="modalLivro">
+<div class="modal-dialog modal-lg modal-dialog-centered">
+<div class="modal-content">
+
+<div class="modal-header">
+<h5 id="titulo"></h5>
+<button class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+
+<div class="modal-body">
+<div class="row">
+
+<div class="col-md-5 text-center">
+    <img id="capa" class="capa-grande">
+</div>
+
+<div class="col-md-7">
+    <p><b>Autor:</b> <span id="autor"></span></p>
+    <p><b>Disponível:</b> <span id="qtd"></span></p>
+
+    <hr>
+
+    <p id="desc"></p>
+</div>
+
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+function abrirLivro(t, a, c, d, q){
+
+    document.getElementById("titulo").innerText = t || "Sem título";
+    document.getElementById("autor").innerText = a || "Desconhecido";
+    document.getElementById("capa").src = c || "https://picsum.photos/200";
+    document.getElementById("desc").innerText = d || "Sem descrição disponível";
+    document.getElementById("qtd").innerText = q;
+
+    new bootstrap.Modal(document.getElementById('modalLivro')).show();
+}
+</script>
+
+</body>
+</html>

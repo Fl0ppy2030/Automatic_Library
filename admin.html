@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<title>Painel da Biblioteca</title>
+
+<style>
+body { background: #f5f7fb; }
+
+.livro-mini {
+    width: 50px;
+    height: 70px;
+    object-fit: cover;
+}
+
+#autocompleteList {
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 999;
+}
+
+.card-box {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-dark bg-dark mb-4">
+<div class="container d-flex justify-content-between">
+<span class="navbar-brand">📚 Painel</span>
+<a href="/logout" class="btn btn-danger btn-sm">Sair</a>
+</div>
+</nav>
+
+<div class="container">
+
+<ul class="nav nav-tabs mb-3">
+<li class="nav-item">
+<button class="nav-link active" data-bs-toggle="tab" data-bs-target="#livros">Livros</button>
+</li>
+
+<li class="nav-item">
+<button class="nav-link" data-bs-toggle="tab" data-bs-target="#emprestimos">Empréstimos</button>
+</li>
+
+<li class="nav-item">
+<button class="nav-link" data-bs-toggle="tab" data-bs-target="#alunos">Alunos</button>
+</li>
+</ul>
+
+<div class="tab-content">
+
+<!-- ================= LIVROS ================= -->
+<div class="tab-pane fade show active" id="livros">
+<div class="card-box">
+
+<div class="d-flex justify-content-between mb-3">
+<h5>Livros</h5>
+<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalLivro">
++ Novo Livro
+</button>
+</div>
+
+<table class="table">
+<tr>
+<th>Livro</th>
+<th>Qtd</th>
+<th></th>
+</tr>
+
+{% for livro in livros %}
+<tr>
+<td>
+<img src="{{ livro.capa_url or 'https://picsum.photos/50' }}" class="livro-mini">
+{{ livro.titulo }}
+</td>
+
+<td>{{ livro.quantidade }}</td>
+
+<td>
+<button class="btn btn-warning btn-sm"
+data-bs-toggle="modal"
+data-bs-target="#editar{{ livro.id }}">
+Editar
+</button>
+
+<a href="/delete_livro/{{ livro.id }}" class="btn btn-danger btn-sm">
+Excluir
+</a>
+</td>
+</tr>
+{% endfor %}
+</table>
+
+</div>
+</div>
+
+<!-- ================= EMPRESTIMOS ================= -->
+<div class="tab-pane fade" id="emprestimos">
+<div class="card-box">
+
+<button class="btn btn-warning mb-3" data-bs-toggle="modal" data-bs-target="#modalAluguel">
+Novo Empréstimo
+</button>
+
+<table class="table">
+<tr>
+<th>Livro</th>
+<th>Aluno</th>
+<th></th>
+</tr>
+
+{% for emp in alugados %}
+<tr>
+<td>{{ emp.livro.titulo }}</td>
+<td>{{ emp.aluno.nome }}</td>
+<td>
+<a href="/devolver/{{ emp.id }}" class="btn btn-success btn-sm">
+Devolver
+</a>
+</td>
+</tr>
+{% endfor %}
+</table>
+
+</div>
+</div>
+
+<!-- ================= ALUNOS ================= -->
+<div class="tab-pane fade" id="alunos">
+<div class="card-box">
+
+<button class="btn btn-info mb-3" data-bs-toggle="modal" data-bs-target="#modalAluno">
++ Novo Aluno
+</button>
+
+<table class="table">
+{% for aluno in alunos %}
+<tr>
+<td>{{ aluno.nome }}</td>
+<td>
+<a href="/delete_aluno/{{ aluno.id }}" class="btn btn-danger btn-sm">
+Excluir
+</a>
+</td>
+</tr>
+{% endfor %}
+</table>
+
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- ================= MODAL LIVRO ================= -->
+<div class="modal fade" id="modalLivro">
+<div class="modal-dialog">
+<form action="/add_livro" method="POST" class="modal-content">
+
+<div class="modal-header">
+<h5>Novo Livro</h5>
+</div>
+
+<div class="modal-body">
+
+<div class="position-relative">
+<input id="tituloInput" name="titulo" class="form-control mb-2" placeholder="Título" autocomplete="off">
+<div id="autocompleteList" class="list-group position-absolute w-100"></div>
+</div>
+
+<input id="autorInput" name="autor" class="form-control mb-2" placeholder="Autor">
+<input name="quantidade" type="number" value="1" class="form-control mb-2">
+<input id="capaInput" name="capa_url" class="form-control mb-2" placeholder="Capa URL">
+<textarea id="descricaoInput" name="descricao" class="form-control" placeholder="Sinopse"></textarea>
+
+</div>
+
+<div class="modal-footer">
+<button class="btn btn-primary w-100">Salvar</button>
+</div>
+
+</form>
+</div>
+</div>
+
+<!-- ================= MODAIS EDITAR ================= -->
+{% for livro in livros %}
+<div class="modal fade" id="editar{{ livro.id }}">
+<div class="modal-dialog">
+<form action="/editar_livro/{{ livro.id }}" method="POST" class="modal-content">
+
+<div class="modal-header">
+<h5>Editar Livro</h5>
+</div>
+
+<div class="modal-body">
+<input name="titulo" class="form-control mb-2" value="{{ livro.titulo }}">
+<input name="autor" class="form-control mb-2" value="{{ livro.autor }}">
+<input name="quantidade" type="number" class="form-control mb-2" value="{{ livro.quantidade }}">
+<input name="capa_url" class="form-control mb-2" value="{{ livro.capa_url }}">
+<textarea name="descricao" class="form-control">{{ livro.descricao }}</textarea>
+</div>
+
+<div class="modal-footer">
+<button class="btn btn-success">Salvar</button>
+</div>
+
+</form>
+</div>
+</div>
+{% endfor %}
+
+<!-- ================= MODAL ALUNO ================= -->
+<div class="modal fade" id="modalAluno">
+<div class="modal-dialog">
+<form action="/add_aluno" method="POST" class="modal-content">
+
+<div class="modal-header">
+<h5>Novo Aluno</h5>
+</div>
+
+<div class="modal-body">
+<input name="nome" class="form-control mb-2" placeholder="Nome">
+<input name="matricula" class="form-control" placeholder="Matrícula">
+</div>
+
+<div class="modal-footer">
+<button class="btn btn-primary w-100">Cadastrar</button>
+</div>
+
+</form>
+</div>
+</div>
+
+<!-- ================= MODAL EMPRESTIMO ================= -->
+<div class="modal fade" id="modalAluguel">
+<div class="modal-dialog">
+<form action="/alugar" method="POST" class="modal-content">
+
+<div class="modal-header">
+<h5>Empréstimo</h5>
+</div>
+
+<div class="modal-body">
+
+<select name="livro_id" class="form-select mb-2">
+{% for livro in livros %}
+<option value="{{ livro.id }}">{{ livro.titulo }}</option>
+{% endfor %}
+</select>
+
+<select name="aluno_id" class="form-select">
+{% for aluno in alunos %}
+<option value="{{ aluno.id }}">{{ aluno.nome }}</option>
+{% endfor %}
+</select>
+
+</div>
+
+<div class="modal-footer">
+<button class="btn btn-warning w-100">Confirmar</button>
+</div>
+
+</form>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ✅ AUTOCOMPLETE FUNCIONANDO -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    const input = document.getElementById("tituloInput");
+    const list = document.getElementById("autocompleteList");
+
+    const tituloInput = document.getElementById("tituloInput");
+    const autorInput = document.getElementById("autorInput");
+    const capaInput = document.getElementById("capaInput");
+    const descricaoInput = document.getElementById("descricaoInput");
+
+
+    let timeout = null;
+    let lastQuery = "";
+
+input.addEventListener("input", () => {
+
+    clearTimeout(timeout);
+
+    timeout = setTimeout(async () => {
+
+        let query = input.value.trim();
+
+        if(query.length < 3){
+            list.innerHTML = "";
+            return;
+        }
+
+        if(query === lastQuery) return;
+        lastQuery = query;
+
+        list.innerHTML = "<div class='list-group-item'>Buscando...</div>";
+
+        try {
+            let res = await fetch(`/buscar_livros?q=${encodeURIComponent(query)}`);
+            let data = await res.json();
+
+            list.innerHTML = "";
+
+            if(data.livros.length === 0){
+                list.innerHTML = "<div class='list-group-item'>Nenhum livro encontrado</div>";
+                return;
+            }
+
+            data.livros.forEach(livro => {
+                let item = document.createElement("a");
+                item.classList.add("list-group-item", "list-group-item-action");
+
+                item.innerHTML = `
+                    <div class="d-flex">
+                        <img src="${livro.capa || 'https://picsum.photos/50'}" width="40" class="me-2">
+                        <div>
+                            <b>${livro.titulo}</b><br>
+                            <small>${livro.autor}</small>
+                        </div>
+                    </div>
+                `;
+
+                item.onclick = () => {
+                    tituloInput.value = livro.titulo;
+                    autorInput.value = livro.autor;
+                    capaInput.value = livro.capa;
+                    descricaoInput.value = livro.descricao;
+
+                    list.innerHTML = "";
+                };
+
+                list.appendChild(item);
+            });
+
+        } catch (err) {
+            console.error(err);
+            list.innerHTML = "<div class='list-group-item text-danger'>Erro ao buscar</div>";
+        }
+
+    }, 600); // 🔥 MAIS SEGURO
+
+});
+
+    // fechar ao clicar fora
+    document.addEventListener("click", (e) => {
+        if(!input.contains(e.target) && !list.contains(e.target)){
+            list.innerHTML = "";
+        }
+    });
+
+});
+</script>
+
+</body>
+</html>
