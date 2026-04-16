@@ -114,7 +114,6 @@ def login():
 
         login_user(user)
 
-        # 🔥 CORREÇÃO AQUI
         if user.is_admin:
             return redirect('/admin')
         else:
@@ -156,7 +155,7 @@ def cadastro():
             db.session.flush()
 
             user = Usuario(
-                username=matricula,  # 🔥 AQUI É A CHAVE
+                username=matricula,
                 password=generate_password_hash(password),
                 aluno_id=aluno.id
             )
@@ -274,7 +273,7 @@ def add_aluno():
     # VALIDAÇÃO
     if not nome or not matricula or not senha:
         flash("Preencha todos os campos")
-        return redirect('/admin')  # ✅ CORRETO
+        return redirect('/admin')
 
     # DUPLICADO
     if Usuario.query.filter_by(username=matricula).first():
@@ -302,7 +301,7 @@ def add_aluno():
         print(e)
         flash("Erro ao criar aluno")
 
-    return redirect('/admin')  # ✅ SEMPRE TEM QUE TER
+    return redirect('/admin')
 
 
 @app.route('/delete_aluno/<int:id>')
@@ -401,7 +400,6 @@ def buscar_livros():
     except Exception as e:
         print("ERRO GOOGLE:", e)
 
-    # 🔥 FALLBACK (OpenLibrary)
     if not resultados:
         try:
             r = requests.get("https://openlibrary.org/search.json", params={"q": q}, timeout=5)
