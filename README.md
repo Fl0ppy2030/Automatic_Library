@@ -1,6 +1,6 @@
 #Sistema de Biblioteca Web
 
-Um sistema web completo para gerenciamento de biblioteca, desenvolvido com **Flask**, permitindo cadastro de livros, alunos e controle de empréstimos — com interface moderna e autocomplete inteligente.
+Um sistema web para gerenciamento de biblioteca, desenvolvido com **Flask**, permitindo cadastro de livros, alunos e controle de empréstimos — com interface moderna e autocomplete inteligente.
 
 ---
 
